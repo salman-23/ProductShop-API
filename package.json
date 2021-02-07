@@ -1,0 +1,14 @@
+{
+  "name": "ProductShop-API",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "https://github.com/salman-23/ProductShop-API.git",
+  "author": "salman-23 <66154732+salman-23@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "yarn start": "nodemon app.js"
+  }
+}
