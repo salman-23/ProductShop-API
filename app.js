@@ -2,6 +2,16 @@ const express = require("express");
 let products = require("./data");
 
 const app = express();
+//before all route use middleware
+app.use(express.json());
+
+//Product Create
+app.post("/products", (req, res) => {
+  const id = products[products.length - 1].id + 1;
+  const newProduct = { id, ...req.body };
+  products.push(newProduct);
+  res.status(201).json(newProduct);
+});
 
 app.get("/products", (req, res) => {
   res.json({ products });
