@@ -1,29 +1,36 @@
 const express = require("express");
-let products = require("./data");
 //no need to write index.js
 const db = require("./db/models");
+const { Product } = require("./db/models/");
 //before all route use middleware
 const app = express();
-const { Product } = require("./db/models/");
 
 app.use(express.json());
 
 //Product Create
-
-app.post("/products", (req, res) => {
-  const id = products[products.length - 1].id + 1;
-  const newProduct = { id, ...req.body };
-  products.push(newProduct);
-  res.status(201).json(newProduct);
+app.post("/products", async (req, res) => {
+  try {
+    const newProduct = await Product.create(req.body);
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 //Product Update
-
-app.put("/products/:productId", (req, res) => {
-  const foundProduct = products.find(
-    (product) => product.id === +req.params.productId
-  );
-  if (foundProduct) {
+app.put("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    if (foundProduct) {
+      await foundProduct.update(req.body);
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "Sorry Product Not Found!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -42,19 +49,23 @@ app.get("/products", async (req, res) => {
 
 //Product Delete
 
-app.delete("/products/:productId", (req, res) => {
-  const foundProduct = products.find(
-    (product) => product.id === +req.params.productId
-  );
-  if (foundProduct) {
-    products = products.filter((product) => product !== foundProduct);
-    res.status(204).end();
-  } else {
-    res.status(404).json({ em: "Sorry Product Not Found!" });
+app.delete("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    if (foundProduct) {
+      await foundProduct.destroy();
+      res.status(204).end();
+    } else {
+      res.status(404).json({ message: "Sorry Product Not Found!" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
 db.sequelize.sync();
+db.sequelize.sync({ alter: true });
 
 const PORT = 8000;
 app.listen(PORT, () => {
