@@ -1,11 +1,15 @@
 const express = require("express");
 let products = require("./data");
-
-const app = express();
+//no need to write index.js
+const db = require("./db/models");
 //before all route use middleware
+const app = express();
+const { Product } = require("./db/models/");
+
 app.use(express.json());
 
 //Product Create
+
 app.post("/products", (req, res) => {
   const id = products[products.length - 1].id + 1;
   const newProduct = { id, ...req.body };
@@ -13,8 +17,27 @@ app.post("/products", (req, res) => {
   res.status(201).json(newProduct);
 });
 
-app.get("/products", (req, res) => {
-  res.json({ products });
+//Product Update
+
+app.put("/products/:productId", (req, res) => {
+  const foundProduct = products.find(
+    (product) => product.id === +req.params.productId
+  );
+  if (foundProduct) {
+  }
+});
+
+//Product List
+
+app.get("/products", async (req, res) => {
+  try {
+    const _products = await Product.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+    res.json(_products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 //Product Delete
@@ -31,4 +54,9 @@ app.delete("/products/:productId", (req, res) => {
   }
 });
 
-app.listen(8000);
+db.sequelize.sync();
+
+const PORT = 8000;
+app.listen(PORT, () => {
+  console.log(`Running on ${PORT}`);
+});
