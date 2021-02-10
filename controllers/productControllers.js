@@ -1,5 +1,15 @@
 const { Product } = require("../db/models");
 
+// fetch is not a controller just a function
+exports.fetchProduct = async (productId, next) => {
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    return foundProduct;
+  } catch (error) {
+    next(error);
+  }
+};
+
 //Product Create
 exports.productCreate = async (req, res, next) => {
   try {
@@ -12,21 +22,10 @@ exports.productCreate = async (req, res, next) => {
 
 //Product Update
 exports.productUpdate = async (req, res, next) => {
-  const { productId } = req.params;
   try {
-    const foundProduct = await Product.findByPk(productId);
-    if (foundProduct) {
-      await foundProduct.update(req.body);
-      res.status(204).end();
-    } else {
-      err = {
-        status: 404,
-        message: "Sorry Product Not Found!",
-      };
-      next(err);
-    }
+    await req.product.update(req.body);
+    res.status(204).end();
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -47,19 +46,9 @@ exports.productList = async (req, res, next) => {
 //Product Delete
 
 exports.productDelete = async (req, res, next) => {
-  const { productId } = req.params;
   try {
-    const foundProduct = await Product.findByPk(productId);
-    if (foundProduct) {
-      await foundProduct.destroy();
-      res.status(204).end();
-    } else {
-      err = {
-        status: 404,
-        message: "Sorry Product Not Found!",
-      };
-      next(err);
-    }
+    await req.product.destroy();
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
