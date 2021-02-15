@@ -2,11 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const productRoutes = require("./routes/products");
 const app = express();
+const path = require("path");
 
 // placement is improtent
 app.use(express.json());
 app.use(cors());
 app.use("/products", productRoutes);
+app.use("/media", express.static(path.join(__dirname, "media")));
 
 //Not Found Middleware
 // next() to terimaite the middleware
