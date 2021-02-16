@@ -1,13 +1,12 @@
 const express = require("express");
 const {
-  productCreate,
+  
   productUpdate,
   productList,
   productDelete,
   fetchProduct,
 } = require("../controllers/productControllers");
 
-const db = require("../db/models");
 const router = express.Router();
 const upload = require("../middleware/multer");
 
@@ -23,8 +22,6 @@ router.param("productId", async (req, res, next, productId) => {
     });
   }
 });
-//Product Create Route
-router.post("/", upload.single("image"), productCreate);
 
 //Product Update Route
 router.put("/:productId", upload.single("image"), productUpdate);
@@ -35,7 +32,5 @@ router.get("/", productList);
 //Product Delete Route
 router.delete("/:productId", productDelete);
 
-db.sequelize.sync();
-db.sequelize.sync({ alter: true });
 
 module.exports = router;
