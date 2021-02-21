@@ -34,7 +34,7 @@ exports.productList = async (req, res, next) => {
       include: {
         model: Shop,
         as: "shops",
-        attributes: ["id", "name"],
+        attributes: ["id"],
       },
     });
     res.json(_products);

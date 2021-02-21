@@ -47,7 +47,7 @@ exports.shopList = async (req, res, next) => {
       include: {
         model: Product,
         as: "products",
-        attributes: { exclude: ["createdAt", "updatedAt", "shopId"] },
+        attributes: ["id"],
       },
     });
     res.json(_shops);
