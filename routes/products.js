@@ -1,11 +1,11 @@
 const express = require("express");
 const {
-  
   productUpdate,
   productList,
   productDelete,
   fetchProduct,
 } = require("../controllers/productControllers");
+const passport = require("passport");
 
 const router = express.Router();
 const upload = require("../middleware/multer");
@@ -23,14 +23,22 @@ router.param("productId", async (req, res, next, productId) => {
   }
 });
 
-//Product Update Route
-router.put("/:productId", upload.single("image"), productUpdate);
-
 //Product List Route
 router.get("/", productList);
 
-//Product Delete Route
-router.delete("/:productId", productDelete);
+//Product Update Route
+router.put(
+  "/:productId",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  productUpdate
+);
 
+//Product Delete Route
+router.delete(
+  "/:productId",
+  passport.authenticate("jwt", { session: false }),
+  productDelete
+);
 
 module.exports = router;

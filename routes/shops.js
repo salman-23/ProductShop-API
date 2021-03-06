@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require("passport");
 const {
   shopCreate,
   shopUpdate,
@@ -24,19 +25,38 @@ router.param("shopId", async (req, res, next, shopId) => {
   }
 });
 
-//Shop Create Route
-router.post("/", upload.single("image"), shopCreate);
-
-//Shop Update Route
-router.put("/:shopId", upload.single("image"), shopUpdate);
-
 //Shop List Route
 router.get("/", shopList);
 
-//Shop Delete Route
-router.delete("/:shopId", shopDelete);
+//Shop Update Route
+router.put(
+  "/:shopId",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  shopUpdate
+);
+
+//Shop Create Route
+router.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  shopCreate
+);
 
 //Product Create Route
-router.post("/:shopId/products", upload.single("image"), productCreate);
+router.post(
+  "/:shopId/products",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  productCreate
+);
+
+//Shop Delete Route
+router.delete(
+  "/:shopId",
+  passport.authenticate("jwt", { session: false }),
+  shopDelete
+);
 
 module.exports = router;

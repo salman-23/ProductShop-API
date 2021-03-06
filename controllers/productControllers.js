@@ -13,13 +13,20 @@ exports.fetchProduct = async (productId, next) => {
 //Product Update
 exports.productUpdate = async (req, res, next) => {
   try {
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    const foundShop = await Shop.findByPk(req.product.shopId);
+    if (req.user.id === foundShop.userId) {
+      if (req.file) {
+        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      }
+      await req.product.update(req.body);
+      res.status(200).json(req.product);
+      //send back the updated product
+    } else {
+      next({
+        status: 401,
+        message: "You Shall Not Pass!!",
+      });
     }
-    await req.product.update(req.body);
-    // res(204).end();
-    res.json(req.product);
-    //send back the updated product
   } catch (error) {
     next(error);
   }
@@ -30,14 +37,14 @@ exports.productUpdate = async (req, res, next) => {
 exports.productList = async (req, res, next) => {
   try {
     const _products = await Product.findAll({
-      attributes: req.body,
-      include: {
-        model: Shop,
-        as: "shops",
-        attributes: ["id"],
-      },
+      // attributes: req.body,
+      // include: {
+      //   model: Shop,
+      //   as: "shops",
+      //   attributes: ["id"],
+      // },
     });
-    res.json(_products);
+    res.status(200).json(_products);
   } catch (error) {
     next(error);
   }
@@ -47,8 +54,16 @@ exports.productList = async (req, res, next) => {
 
 exports.productDelete = async (req, res, next) => {
   try {
-    await req.product.destroy();
-    res.status(204).end();
+    const foundShop = await Shop.findByPk(req.product.shopId);
+    if (req.user.id === foundShop.userId) {
+      await req.product.destroy();
+      res.status(204).end();
+    } else {
+      next({
+        status: 401,
+        message: "You Shall Not Pass!!",
+      });
+    }
   } catch (error) {
     next(error);
   }

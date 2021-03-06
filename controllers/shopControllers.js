@@ -13,29 +13,35 @@ exports.fetchShop = async (shopId, next) => {
 //Shop Create
 exports.shopCreate = async (req, res, next) => {
   try {
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    const foundShop = await Shop.findOne({ where: { userId: req.user.id } });
+
+    if (foundShop) {
+      next({
+        status: 400,
+        message: "You Can Not Create A Shop!!",
+      });
+    } else {
+      if (req.file) {
+        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      }
+      req.body.userId = req.user.id; // req.user is coming from jwt strategy
+      //no id in URL for post in shops
+      const newShop = await Shop.create(req.body);
+      res.status(201).json(newShop);
     }
-    const newShop = await Shop.create(req.body);
-    res.status(201).json(newShop);
   } catch (error) {
     next(error);
   }
 };
 
 //Shop Update
-exports.shopUpdate = async (req, res, next) => {
-  try {
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
-    }
-    await req.shop.update(req.body);
-    // res(204).end();
-    res.json(req.shop);
-    //send back the updated shop
-  } catch (error) {
-    next(error);
+exports.shopUpdate = async (req, res) => {
+  if (req.file) {
+    req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
   }
+  await req.shop.update(req.body);
+  res.status(200).json(req.shop);
+  //send back the updated shop
 };
 
 //Shop List
@@ -56,27 +62,31 @@ exports.shopList = async (req, res, next) => {
   }
 };
 
-//Shop Delete
-
-exports.shopDelete = async (req, res, next) => {
+//Product Create
+exports.productCreate = async (req, res, next) => {
   try {
-    await req.shop.destroy();
-    res.status(204).end();
+    // passport vs model
+    if (req.user.id === req.shop.userId) {
+      if (req.file) {
+        // coming form route parmes middleare
+        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      }
+      req.body.shopId = req.shop.id;
+      const newProduct = await Product.create(req.body);
+      res.status(201).json(newProduct);
+    } else {
+      next({
+        status: 404,
+        message: "You Shall Not Pass!!",
+      });
+    }
   } catch (error) {
     next(error);
   }
 };
 
-//Product Create
-exports.productCreate = async (req, res, next) => {
-  try {
-    req.body.ShopId = req.shop.id;
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
-    }
-    const newProduct = await Product.create(req.body);
-    res.status(201).json(newProduct);
-  } catch (error) {
-    next(error);
-  }
+//Shop Delete
+exports.shopDelete = async (req, res, next) => {
+  await req.shop.destroy();
+  res.status(204).end();
 };
