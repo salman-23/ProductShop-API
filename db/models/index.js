@@ -50,4 +50,16 @@ db.Product.belongsTo(db.Shop, { foreignKey: "shopId", as: "shop" });
 db.User.hasOne(db.Shop, { foreignKey: "userId", as: "shop" });
 db.Shop.belongsTo(db.User, { as: "user" });
 
+db.User.hasMany(db.Order, { as: "orders", foreignKey: "userId" });
+db.Order.belongsTo(db.User, { as: "user" });
+
+db.Order.belongsToMany(db.Product, {
+  through: "OrderItem",
+  foreignKey: "orderId",
+});
+db.Product.belongsToMany(db.Order, {
+  through: "OrderItem",
+  foreignKey: "productId",
+});
+
 module.exports = db;

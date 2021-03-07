@@ -3,6 +3,7 @@ const cors = require("cors");
 const productRoutes = require("./routes/products");
 const shopRoutes = require("./routes/shops");
 const userRoutes = require("./routes/users");
+const orderRoutes = require("./routes/orders");
 const app = express();
 const db = require("./db/models");
 const path = require("path");
@@ -12,9 +13,13 @@ const { localStrategy, jwtStrategy } = require("./middleware/passport");
 // placement is improtent
 app.use(express.json());
 app.use(cors());
+
+// Routes
 app.use("/products", productRoutes);
 app.use("/shops", shopRoutes);
 app.use(userRoutes);
+app.use(orderRoutes);
+
 app.use("/media", express.static(path.join(__dirname, "media")));
 app.use(passport.initialize());
 passport.use(localStrategy);
